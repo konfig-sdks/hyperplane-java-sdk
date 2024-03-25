@@ -1,0 +1,4420 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: ""
+  title: Hyperplane API Gateway
+  version: "1.0"
+  x-konfig-ignore:
+    potential-incorrect-type: true
+servers:
+- url: https://api.sandbox-65ebc.chico.ai/v1
+tags:
+- name: AutoML Service
+- name: Personas
+- name: Enriched Transactions
+- name: Users
+- name: Auth
+- name: Client
+- name: Health
+- name: Statistics
+paths:
+  /auth/token:
+    post:
+      description: Authenticate a client and get an access token
+      operationId: Auth_getToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.AuthRequest'
+        description: Request body
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.AuthResponse'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Invalid request body
+          x-do-not-generate: true
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Invalid client credentials
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Client not found
+          x-do-not-generate: true
+      summary: Get Token
+      tags:
+      - Auth
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-post--auth-token
+      x-content-type: application/json
+      x-accepts: application/json
+  /automl/lookalike:
+    post:
+      operationId: AutoMlService_createLookalikeRequest
+      parameters:
+      - description: Model Version
+        explode: true
+        in: query
+        name: model_version
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.AutoMLLookalikeCreateRequest'
+        description: Lookalike Request Body
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.AutoMLLookalikeCreateResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Create an AutoML lookalike request
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-post--automl-lookalike
+      x-content-type: application/json
+      x-accepts: application/json
+  /automl/runs:
+    get:
+      operationId: AutoMlService_getAllRuns
+      parameters:
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.AutoMLRunsGetResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Get all AutoML runs in a specified module
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--automl-runs
+      x-accepts: application/json
+  /automl/runs/{run_id}:
+    get:
+      operationId: AutoMlService_getRunSummary
+      parameters:
+      - description: Run ID
+        explode: false
+        in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.AutoMLRunGetIdResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Get run summary for a specified AutoML run
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--automl-runs-run_id
+      x-accepts: application/json
+  /automl/runs/{run_id}/generate_batch_scores:
+    post:
+      operationId: AutoMlService_rerunInferenceScores
+      parameters:
+      - description: Run ID
+        explode: false
+        in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.AutoMLBatchScoresCreateResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Rerun the inference and store the updated scores in the output connection
+        of the module
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-post--automl-runs-run_id-generate_batch_scores
+      x-accepts: application/json
+  /automl/runs/{run_id}/rescore:
+    post:
+      operationId: AutoMlService_rerunInference
+      parameters:
+      - description: Run ID
+        explode: false
+        in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.AutoMLLookalikeCreateResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Rerun inference on latest user snapshots to update scores
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-post--automl-runs-run_id-rescore
+      x-accepts: application/json
+  /automl/runs/{run_id}/status:
+    get:
+      operationId: AutoMlService_getRunStatus
+      parameters:
+      - description: Run ID
+        explode: false
+        in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoMlServiceGetRunStatusResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Get status of a specified AutoML run
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--automl-runs-run_id-status
+      x-accepts: application/json
+  /automl/runs/{run_id}/status_batch_scores:
+    get:
+      operationId: AutoMlService_getRunStatusBatchScores
+      parameters:
+      - description: Run ID
+        explode: false
+        in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoMlServiceGetRunStatusBatchScoresResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Get status of the batch scores request for an AutoML run
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--automl-runs-run_id-status_batch_scores
+      x-accepts: application/json
+  /automl/runs/{run_id}/users:
+    post:
+      operationId: AutoMlService_getTopUsersExcludingTraining
+      parameters:
+      - description: Run ID
+        explode: false
+        in: path
+        name: run_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: "Page number, starting at 1"
+        explode: true
+        in: query
+        name: page_number
+        required: false
+        schema:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--automl-runs-run_id-users-post-parameters-1-schema
+        style: form
+      - description: Number of users scored in run per page. Between 1 and 10000.
+          Defaults to 500
+        explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 500
+          example: 500
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 500
+          x-konfig-generated-schema: konfig-generated-schema-paths--automl-runs-run_id-users-post-parameters-2-schema
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.AutoMLRunUsersGetRequest'
+        description: Request Options
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.AutoMLRunUsersGetResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Get top users from a specified AutoML run excluding training users
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-post--automl-runs-run_id-users
+      x-content-type: application/json
+      x-accepts: application/json
+  /automl/users:
+    get:
+      operationId: AutoMlService_getAvailableUsers
+      parameters:
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: "Page number, starting at 1"
+        explode: true
+        in: query
+        name: page_number
+        required: false
+        schema:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--automl-users-get-parameters-1-schema
+        style: form
+      - description: Number of users scored in run per page. Between 1 and 10000.
+          Defaults to 500
+        explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 500
+          example: 500
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 500
+          x-konfig-generated-schema: konfig-generated-schema-paths--automl-users-get-parameters-2-schema
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.AutoMLUsersGetResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Get available users for training an AutoML run in a specified module
+      tags:
+      - AutoML Service
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--automl-users
+      x-accepts: application/json
+  /batch/user/personas:
+    post:
+      description: Returns all personas associated with a user.
+      operationId: Personas_getAllFacetAttributes
+      parameters:
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: Reference month for persona scores in `YYYY-MM` format.
+        explode: true
+        in: query
+        name: month
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Minimum user persona score threshold to be included in the response.
+        explode: true
+        in: query
+        name: persona_score_threshold
+        required: false
+        schema:
+          maximum: 1
+          minimum: 0
+          type: number
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.BatchUserPersonasRequest'
+        description: List of user IDs
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonasGetAllFacetAttributesResponse'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: "Will return a 400 (Bad Request) error if the provided module\
+            \ ID or month is invalid, or number of requested users exceed the maximum\
+            \ allowed (1000)."
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 404 (Not Found) error if any of the users with
+            provided `user_id` does not exist.
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: Get all the facet attributes for a list of users.
+      tags:
+      - Personas
+      - Users
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-post--batch-user-personas
+      x-content-type: application/json
+      x-accepts: application/json
+  /client/{access_key_id}:
+    get:
+      description: Fetch a client by its access key ID
+      operationId: Client_getByAccessKey
+      parameters:
+      - description: Access Key ID
+        explode: false
+        in: path
+        name: access_key_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.ClientResponse'
+          description: Ok
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Unauthorized
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Client not found
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: Get Client
+      tags:
+      - Client
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--client-access_key_id
+      x-accepts: application/json
+  /health:
+    get:
+      description: Check if the server is alive
+      operationId: Health_checkStatus
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckStatusResponse'
+          description: I'm alive!
+      summary: Health check
+      tags:
+      - Health
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--health
+      x-accepts: application/json
+  /module/transaction-enrichment/statistics:
+    get:
+      description: |-
+        Retrieves statistics about a transaction enrichment module.
+        The payload includes the number of distinct users and number of transactions.
+      operationId: EnrichedTransactions_getStatistics
+      parameters:
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.TransactionEnrichmentStatisticsResponse'
+          description: OK
+      security:
+      - PASETO: []
+      summary: Get statistics for transaction enrichment module.
+      tags:
+      - Enriched Transactions
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--module-transaction-enrichment-statistics
+      x-accepts: application/json
+  /module/transaction-enrichment/users:
+    get:
+      description: |-
+        List the users in a transaction enrichment module.
+        Optionally, you can pass a `user_id_prefix` as a query parameter to filter users by a user ID prefix.
+        Every user will contain their user ID, as well as their first and last transaction dates.
+      operationId: EnrichedTransactions_listUsers
+      parameters:
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: "Prefix used to filter user_id results (e.g.: prefix = '2'->\
+          \ users = ['23456', '24562'])."
+        explode: true
+        in: query
+        name: user_id_prefix
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Page number, starting at 1"
+        explode: true
+        in: query
+        name: page_number
+        required: false
+        schema:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--module-transaction-enrichment-users-get-parameters-2-schema
+        style: form
+      - description: Number of elements per page. Defaults to 100
+        explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 100
+          example: 100
+          type: integer
+          x-konfig-original-example: 100
+          x-konfig-generated-schema: konfig-generated-schema-paths--module-transaction-enrichment-users-get-parameters-3-schema
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.TransactionEnrichmentUsersResponse'
+          description: OK
+      security:
+      - PASETO: []
+      summary: List the users in a transaction enrichment module.
+      tags:
+      - Enriched Transactions
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--module-transaction-enrichment-users
+      x-accepts: application/json
+  /persona:
+    get:
+      description: |-
+        Lists all existing personas.
+
+        Personas are sorted by creation date, with the most recently created personas appearing first.
+        By default, all personas are returned. However, you can specify the type of personas you want
+        by passing specific facet types as a query parameter. (e.g. `GET /persona?facet_types=interest,demographic`)
+        Optionally, you can paginate the results by specifying the `page_number` and `page_size` query parameters.
+        If either `page_number` and `page_size` are not specified, all personas will be returned.
+      operationId: Personas_listExisting
+      parameters:
+      - description: "Comma-separated facet types to select. By default, all personas\
+          \ are returned. Valid facet types are: interest, demographic, pre_defined_persona,\
+          \ custom."
+        explode: true
+        in: query
+        name: facet_types
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: "Page number, starting at 1"
+        explode: true
+        in: query
+        name: page_number
+        required: false
+        schema:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-get-parameters-2-schema
+        style: form
+      - description: "Number of personas per page, between 1 and 10000. Will return\
+          \ all personas if not specified."
+        explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          maximum: 10000
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.ListPersonasResponse'
+          description: A list of personas available in the database.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 400 (Bad Request) error if the module-id is not
+            provided when required or the month is invalid.
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 404 (Not Found) error if the provided facet type
+            is invalid or if a specific persona wasn't found.
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: List existing personas.
+      tags:
+      - Personas
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--persona
+      x-accepts: application/json
+    post:
+      description: |-
+        Creates a persona definition from a list of facet weights.
+
+        Personas enable you to define a weighted combination of interests, demographics, and financial behaviors
+        to create highly targeted audiences for specialized use cases.
+        They are defined using a list of facet weights, each containing a facet name and a weight.
+        To create a persona, you must provide at least one facet weight. Each facet weight must contain a valid facet name
+        and must be registered in the field with corresponding facet type. For example, if you want to create a persona with
+        a facet weight for the "Travel" interest facet, you must provide a facet weight with the name "Travel" with the facet
+        type "interest", the facet weight must be defined in the `interest_facets` field.
+      operationId: Personas_createDefinition
+      parameters:
+      - description: Model Version
+        explode: true
+        in: query
+        name: model_version
+        required: false
+        schema:
+          default: '"latest"'
+          example: '"latest"'
+          type: string
+          x-konfig-original-example: '"latest"'
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-post-parameters-0-schema
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.PersonaCreateRequest'
+        description: Persona Request Body
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.PersonaCreateResponse'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: "Will return a 400 (Bad Request) error if no facets are provided,\
+            \ one or more of the facet names does not exist, or is a custom facet."
+          x-do-not-generate: true
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 409 (Conflict) error if a persona with the same
+            name already exists.
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: Create a persona definition.
+      tags:
+      - Personas
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-post--persona
+      x-content-type: application/json
+      x-accepts: application/json
+  /persona/{persona_id}:
+    delete:
+      description: |-
+        Deletes a custom persona for a provided `persona_id`.
+
+        Personas with facet type other than `custom` cannot be deleted. Attempting to delete
+        a persona with facet type other than `custom` will result in a 403 Forbidden error.
+      operationId: Personas_deleteDefinition
+      parameters:
+      - description: Persona ID
+        explode: false
+        in: path
+        name: persona_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonasDeleteDefinitionResponse'
+          description: Ok
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 403 (Forbidden) error if the persona ID is a
+            pre-defined persona.
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 404 (Not Found) error if the persona ID does
+            not exist.
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: Delete a persona definition.
+      tags:
+      - Personas
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-delete--persona-persona_id
+      x-accepts: application/json
+    get:
+      description: |-
+        Returns statistics and information about a persona definition.
+
+        The response includes the original persona definition, its creation date, as well as
+        statistics about the persona's score distribution (e.g. number of users, average score,
+        score percentiles, etc.). You can also specify the minimum persona score threshold
+        that a user must meet to be included in the response.
+
+        You must provide a valid persona ID. Otherwise, a 404 (Not Found) error will be returned.
+      operationId: Personas_getPersonaStatistics
+      parameters:
+      - description: Persona ID
+        explode: false
+        in: path
+        name: persona_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: Reference month for persona scores in `YYYY-MM` format. Defaults
+          to current month.
+        explode: true
+        in: query
+        name: month
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Minimum user persona score threshold to count a user as belonging
+          to a persona in the response.
+        explode: true
+        in: query
+        name: persona_score_threshold
+        required: false
+        schema:
+          maximum: 1
+          minimum: 0
+          type: number
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.PersonaDetailsResponse'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 400 (Bad Request) error if the provided module
+            ID or month is invalid.
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 404 (Not Found) error if the persona with provided
+            `persona_id` does not exist.
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: Fetch information and score statistics about a persona definition.
+      tags:
+      - Personas
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--persona-persona_id
+      x-accepts: application/json
+  /persona/{persona_id}/percentile_score:
+    get:
+      description: Returns the score associated with a given percentile for a persona
+        id.
+      operationId: Personas_getPercentileScore
+      parameters:
+      - description: Persona ID
+        explode: false
+        in: path
+        name: persona_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: "Target percentile. Defaults to 50th percentile (i.e.: the median)"
+        explode: true
+        in: query
+        name: percentile
+        required: true
+        schema:
+          default: 50
+          example: 50
+          maximum: 100
+          minimum: 0
+          type: number
+          x-konfig-original-example: 50
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-persona_id-percentile_score-get-parameters-1-schema
+        style: form
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: Reference month for persona scores in `YYYY-MM` format. Defaults
+          to current month.
+        explode: true
+        in: query
+        name: month
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.PercentileScore'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 400 (Bad Request) error if the provided module
+            ID or month is invalid.
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 404 (Not Found) error if the persona with provided
+            `persona_id` does not exist.
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: Fetch score on a given percentile for a persona id.
+      tags:
+      - Personas
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--persona-persona_id-percentile_score
+      x-accepts: application/json
+  /persona/{persona_id}/users:
+    post:
+      description: |-
+        Returns a ranked list of users who match a persona definition.
+
+        Users are sorted by their persona score, with the highest scoring users appearing first. Results are paginated
+        by default, with 500 users per page. You can specify the page number and page size by passing the `page_number`
+        and `page_size` query parameters. (e.g. `GET /persona/{persona_id}/users?page_number=2&page_size=100`)
+
+        You can also specify the minimum persona score threshold that a user must meet to be included in the response.
+        If not specified, will default to the hyperplane suggested threshold for the given persona_id.
+
+        You can also use a blocklist to exclude specific users from the response.
+      operationId: Personas_getRankedUsers
+      parameters:
+      - description: Persona ID
+        explode: false
+        in: path
+        name: persona_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: "Page number, starting at 1"
+        explode: true
+        in: query
+        name: page_number
+        required: false
+        schema:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-persona_id-users-post-parameters-2-schema
+        style: form
+      - description: "Number of users scored in run per page, between 1 and 10000.\
+          \ Defaults to 500."
+        explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 500
+          example: 500
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 500
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-persona_id-users-post-parameters-3-schema
+        style: form
+      - description: Reference month for persona scores in `YYYY-MM` format. Defaults
+          to current month.
+        explode: true
+        in: query
+        name: month
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Minimum user persona score threshold for user to be included
+          in the response.
+        explode: true
+        in: query
+        name: persona_score_threshold
+        required: false
+        schema:
+          maximum: 1
+          minimum: 0
+          type: number
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/models.PostPersonaUsersRequest'
+        description: Optional user filters
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.PersonaUsersResponse'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 400 (Bad Request) error if the provided module
+            ID or month is invalid.
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 404 (Not Found) error if the persona with provided
+            `persona_id` does not exist.
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: Get ranked list of users who match a persona definition.
+      tags:
+      - Personas
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-post--persona-persona_id-users
+      x-content-type: application/json
+      x-accepts: application/json
+  /statistics/latest_month:
+    get:
+      description: Returns the latest month with valid data.
+      operationId: Statistics_getLatestMonth
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticsGetLatestMonthResponse'
+          description: Ok
+      security:
+      - PASETO: []
+      summary: Get the latest month with valid data.
+      tags:
+      - Statistics
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--statistics-latest_month
+      x-accepts: application/json
+  /user/{user_id}/cashflow/categories:
+    get:
+      description: |-
+        Detailed percentages of inflow and outflow for each category.
+        Lists all the top level categories and the discrimination under each top level category
+      operationId: EnrichedTransactions_getUserCashflowCategories
+      parameters:
+      - description: User ID
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Minimum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: start_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: end_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Specifies if we must include only an specific account type.\
+          \ Can be 'CREDIT_CARD', 'DEBIT_CARD', 'SAVINGS', 'CHECKING', 'INVESTMENT',\
+          \ 'PENSION', or 'LOAN'."
+        explode: true
+        in: query
+        name: account_type
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.UserCashflowPerCategoryResponse'
+          description: OK
+      security:
+      - PASETO: []
+      summary: Get a user's cashflow aggregated per category.
+      tags:
+      - Enriched Transactions
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--user-user_id-cashflow-categories
+      x-accepts: application/json
+  /user/{user_id}/cashflow/history:
+    get:
+      description: |-
+        Creates a cashflow timeline for a given user, aggregating all transactions in a given window.
+        The period windows can be of 1 hour, day, week, month or year.
+      operationId: EnrichedTransactions_getUserCashflowHistory
+      parameters:
+      - description: User ID
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Minimum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: start_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: end_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "How to aggregate the cashflows in periods. Can be 'HOUR', 'DAY',\
+          \ 'WEEK', 'MONTH', or 'YEAR'."
+        explode: true
+        in: query
+        name: aggregation
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Specifies if we must include only an specific account type.\
+          \ Can be 'CREDIT_CARD', 'DEBIT_CARD', 'SAVINGS', 'CHECKING', 'INVESTMENT',\
+          \ 'PENSION', or 'LOAN'."
+        explode: true
+        in: query
+        name: account_type
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.UserCashflowHistoryResponse'
+          description: OK
+      security:
+      - PASETO: []
+      summary: Get the cashflow history for a given user.
+      tags:
+      - Enriched Transactions
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--user-user_id-cashflow-history
+      x-accepts: application/json
+  /user/{user_id}/cashflow/statistics:
+    get:
+      description: "Get the cashflow statistics for a given user per account type.\
+        \ That includes inflow, outflow, and net cashflow for each account type."
+      operationId: EnrichedTransactions_getUserCashflowStatistics
+      parameters:
+      - description: User ID
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Minimum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: start_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: end_date
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichedTransactionsGetUserCashflowStatisticsResponse'
+          description: OK
+      security:
+      - PASETO: []
+      summary: Get the cashflow statistics for a given user.
+      tags:
+      - Enriched Transactions
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--user-user_id-cashflow-statistics
+      x-accepts: application/json
+  /user/{user_id}/transactions:
+    get:
+      description: Returns the enriched transaction history of a user
+      operationId: EnrichedTransactions_getHistory
+      parameters:
+      - description: User ID
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: "Page number, starting at 1"
+        explode: true
+        in: query
+        name: page_number
+        required: false
+        schema:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--user-user_id-transactions-get-parameters-2-schema
+        style: form
+      - description: Number of elements per page
+        explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 100
+          example: 100
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 100
+          x-konfig-generated-schema: konfig-generated-schema-paths--user-user_id-transactions-get-parameters-3-schema
+        style: form
+      - description: Minimum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: start_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: end_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "The flow type from transactions to be returned, must be either\
+          \ 'inflow', or 'outflow'. Defaults to returning both."
+        explode: true
+        in: query
+        name: flow_type
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: The minimum amount from transactions to be returned.
+        explode: true
+        in: query
+        name: min_amount
+        required: false
+        schema:
+          type: number
+        style: form
+      - description: The maximum amount from transactions to be returned.
+        explode: true
+        in: query
+        name: max_amount
+        required: false
+        schema:
+          type: number
+        style: form
+      - description: Specifies if we must include only an specific account type.
+        explode: true
+        in: query
+        name: account_type
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: List of categories to filter. Accept only category codes present
+          on our taxonomy.
+        explode: false
+        in: query
+        name: categories
+        required: false
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: Search for a specific string in the transaction description.
+        explode: true
+        in: query
+        name: search_name
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.UserTransactionsResponse'
+          description: OK
+      security:
+      - PASETO: []
+      summary: Get the transaction history for a given user.
+      tags:
+      - Enriched Transactions
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--user-user_id-transactions
+      x-accepts: application/json
+  /user/{user_id}/transactions/statistics:
+    get:
+      description: "Get the number of transactions, average transaction value and\
+        \ median."
+      operationId: EnrichedTransactions_getUserStatistics
+      parameters:
+      - description: User ID
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: "Minimum\ttransaction\tdate\tto\tbe\tincluded\t(e.g. '2020-09-18\
+          \ 10:00:00')."
+        explode: true
+        in: query
+        name: start_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Maximum transaction date to be included (e.g. '2020-09-18 10:00:00').
+        explode: true
+        in: query
+        name: end_date
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "The flow type from transactions to be returned, must be either\
+          \ 'inflow', or 'outflow'. Defaults to returning both."
+        explode: true
+        in: query
+        name: flow_type
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: The minimum amount from transactions to be returned.
+        explode: true
+        in: query
+        name: min_amount
+        required: false
+        schema:
+          type: number
+        style: form
+      - description: The maximum amount from transactions to be returned.
+        explode: true
+        in: query
+        name: max_amount
+        required: false
+        schema:
+          type: number
+        style: form
+      - description: Specifies if we must include only an specific account type.
+        explode: true
+        in: query
+        name: account_type
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.UserTransactionsStatisticsResponse'
+          description: OK
+      security:
+      - PASETO: []
+      summary: Get the transaction statistics for a given user.
+      tags:
+      - Enriched Transactions
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--user-user_id-transactions-statistics
+      x-accepts: application/json
+  /users/{user_id}/personas:
+    get:
+      description: |-
+        Returns a list of personas and their scores for a given user.
+        Personas are sorted by their persona score, in descending order.
+
+        You can also specify the minimum persona score threshold that a user must meet to be included in the response.
+        Defaults to hyperplane's suggested threshold to determine if the user belongs to the persona.
+      operationId: Personas_listUserPersonas
+      parameters:
+      - description: User ID
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Module ID
+        explode: false
+        in: header
+        name: module-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: Reference month for persona scores in `YYYY-MM` format.
+        explode: true
+        in: query
+        name: month
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Minimum user persona score threshold to be included in the response.
+        explode: true
+        in: query
+        name: persona_score_threshold
+        required: false
+        schema:
+          maximum: 1
+          minimum: 0
+          type: number
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/models.UserPersonasResponse'
+          description: Ok
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 400 (Bad Request) error if the provided module
+            ID or month is invalid.
+          x-do-not-generate: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/api.ErrResponse'
+          description: Will return a 404 (Not Found) error if the user with provided
+            `user_id` does not exist.
+          x-do-not-generate: true
+      security:
+      - PASETO: []
+      summary: List personas associated with a user.
+      tags:
+      - Personas
+      - Users
+      x-konfig-operation-can-have-single-parameter: true
+      x-konfig-single-parameter-schema: konfig-generated-schema-single-parameter-schema-get--users-user_id-personas
+      x-accepts: application/json
+components:
+  schemas:
+    api.ErrResponse:
+      properties:
+        error:
+          type: string
+      type: object
+      x-konfig-is-used-in-non-successful-response: true
+      x-do-not-generate: true
+    models.AccountCashflowOverview:
+      description: Cashflow details for a given account of a given user
+      example:
+        net_cashflow_amount: 6.027456183070403
+        account_type: account_type
+        outflow_amount: 1.4658129805029452
+        inflow_amount: 0.8008281904610115
+      properties:
+        account_type:
+          description: Account type
+          type: string
+        inflow_amount:
+          description: Inflow amount on the given window
+          type: number
+        net_cashflow_amount:
+          description: Net cashflow amount on the given window
+          type: number
+        outflow_amount:
+          description: Outflow amount on the given window
+          type: number
+      required:
+      - account_type
+      - inflow_amount
+      - net_cashflow_amount
+      - outflow_amount
+      type: object
+    models.AuthRequest:
+      properties:
+        client_id:
+          example: 4681f83e-a4e9-11ee-a506-0242ac120002
+          type: string
+          x-konfig-original-example: 4681f83e-a4e9-11ee-a506-0242ac120002
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.AuthRequest-properties-client_id
+        client_secret:
+          example: W5qNTpWIT81r5qE3wHrtwXBujKdmGAvx
+          type: string
+          x-konfig-original-example: W5qNTpWIT81r5qE3wHrtwXBujKdmGAvx
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.AuthRequest-properties-client_secret
+      required:
+      - client_id
+      - client_secret
+      type: object
+    models.AuthResponse:
+      example:
+        api_key: v2.local.V0bmLbcYzFAs4w0VLqdV-XBssuwRPIflBf94lhrUHu3Lcg18Qiwb4fPgqIc9pLqvhDYPQhTDho5sBCWV_ZwwJ4sKYEc0g5GKEn9BUA8d-KnIbHnLyYKuqMDZflzQSCUdhwnFAcDqAlIqqpENdDVf01IL4wyhyC2F3CLqLVnwWCCFLonLjwpi7eNztZJ4REYPellWBDq3jL-2td4fQmcUvhGXz0T7GBlg9jGtOrs47sbUWS_QHgd1esEjgYm823OdTAk5yjuWD7CKF8P7bqg66A.bnVsbA
+      properties:
+        api_key:
+          example: v2.local.V0bmLbcYzFAs4w0VLqdV-XBssuwRPIflBf94lhrUHu3Lcg18Qiwb4fPgqIc9pLqvhDYPQhTDho5sBCWV_ZwwJ4sKYEc0g5GKEn9BUA8d-KnIbHnLyYKuqMDZflzQSCUdhwnFAcDqAlIqqpENdDVf01IL4wyhyC2F3CLqLVnwWCCFLonLjwpi7eNztZJ4REYPellWBDq3jL-2td4fQmcUvhGXz0T7GBlg9jGtOrs47sbUWS_QHgd1esEjgYm823OdTAk5yjuWD7CKF8P7bqg66A.bnVsbA
+          type: string
+          x-konfig-original-example: v2.local.V0bmLbcYzFAs4w0VLqdV-XBssuwRPIflBf94lhrUHu3Lcg18Qiwb4fPgqIc9pLqvhDYPQhTDho5sBCWV_ZwwJ4sKYEc0g5GKEn9BUA8d-KnIbHnLyYKuqMDZflzQSCUdhwnFAcDqAlIqqpENdDVf01IL4wyhyC2F3CLqLVnwWCCFLonLjwpi7eNztZJ4REYPellWBDq3jL-2td4fQmcUvhGXz0T7GBlg9jGtOrs47sbUWS_QHgd1esEjgYm823OdTAk5yjuWD7CKF8P7bqg66A.bnVsbA
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.AuthResponse-properties-api_key
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.AutoMLBatchScoresCreateResponse:
+      example:
+        path: path
+      properties:
+        path:
+          description: Path where parquet file with the batch scores will be written
+          type: string
+      required:
+      - path
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.AutoMLLookalikeCreateRequest:
+      properties:
+        engagement_type:
+          description: "Intended use case of this product, between MULTI_ENGAGE and\
+            \ SINGLE_ENGAGE"
+          type: string
+        negative_label_users:
+          description: "List of negative users in lookalike model. Model will be trained\
+            \ to identify users dissimilar to these users. If None, negative users\
+            \ will be generated from data. List length must be either 0 or greater\
+            \ than 10."
+          items:
+            $ref: '#/components/schemas/models.LookalikeLabel'
+          type: array
+        positive_label_users:
+          description: List of positive users in lookalike model. Model will be trained
+            to identify users similar to these users. This list must contain at least
+            ten elements.
+          items:
+            $ref: '#/components/schemas/models.LookalikeLabel'
+          type: array
+        run_description:
+          description: Custom run description to attach to run
+          type: string
+      required:
+      - engagement_type
+      - positive_label_users
+      type: object
+    models.AutoMLLookalikeCreateResponse:
+      example:
+        run_id: run_id
+        run_description: run_description
+        input_label_summary:
+          monthly_positive_rates:
+            key: 1.4658129805029452
+          num_input_labels: 5
+          num_training_users: 7
+          label_weight_counts:
+            key: 0
+          num_matched_labels: 2
+          monthly_counts:
+            key: 6
+          num_input_users: 5
+      properties:
+        input_label_summary:
+          $ref: '#/components/schemas/models.InputLabelSummary'
+        run_description:
+          description: Description of the run
+          type: string
+        run_id:
+          description: RunID is the unique identifier for the AutoML run
+          type: string
+      required:
+      - input_label_summary
+      - run_id
+      type: object
+      x-konfig-properties:
+        input_label_summary:
+          description: "Analysis of input labels detailing amounts of labels given,\
+            \ amounts of labels detected, monthly breakdowns of positive rates and\
+            \ counts, and a breakdown of weights by label value."
+      x-konfig-is-used-in-successful-response: true
+    models.AutoMLRunGetIdResponse:
+      example:
+        run_id: run_id
+        engagement_type: engagement_type
+        run_metrics:
+          train_ks: 3.616076749251911
+          test_ks: 7.061401241503109
+          positive_rate_by_decile:
+            key: 5.637376656633329
+          train_auc: 9.301444243932576
+          test_auc: 2.3021358869347655
+          cumulative_positive_rate:
+            key:
+              key: 1.4658129805029452
+          label_positive_rate: 5.962133916683182
+        number_of_inference_users: 0
+        run_description: run_description
+        number_of_train_users: 6
+        input_label_summary:
+          monthly_positive_rates:
+            key: 1.4658129805029452
+          num_input_labels: 5
+          num_training_users: 7
+          label_weight_counts:
+            key: 0
+          num_matched_labels: 2
+          monthly_counts:
+            key: 6
+          num_input_users: 5
+        status: status
+        timestamp: timestamp
+      properties:
+        engagement_type:
+          description: Engagement type of this product run
+          type: string
+        input_label_summary:
+          $ref: '#/components/schemas/models.InputLabelSummary'
+        number_of_inference_users:
+          description: NumberOfInferenceUsers is the number of users in model inference
+          type: integer
+        number_of_train_users:
+          description: NumberOfTrainUsers is the number of users in model training
+          type: integer
+        run_description:
+          description: RunDescription is the description of the AutoML training run
+          type: string
+        run_id:
+          description: RunID is the unique identifier for the AutoML run
+          type: string
+        run_metrics:
+          $ref: '#/components/schemas/models.AutoMLRunMetrics'
+        status:
+          description: RunStatus is the status of the AutoML training run
+          type: string
+        timestamp:
+          description: Timestamp is the time when the training run began
+          type: string
+      required:
+      - run_description
+      - run_id
+      - status
+      - timestamp
+      type: object
+      x-konfig-properties:
+        input_label_summary:
+          description: "Analysis of input labels detailing amounts of labels given,\
+            \ amounts of labels detected, monthly breakdowns of positive rates and\
+            \ counts, and a breakdown of weights by label value."
+        run_metrics:
+          description: RunMetrics is the metrics of the AutoML training run
+      x-konfig-is-used-in-successful-response: true
+    models.AutoMLRunMetrics:
+      example:
+        train_ks: 3.616076749251911
+        test_ks: 7.061401241503109
+        positive_rate_by_decile:
+          key: 5.637376656633329
+        train_auc: 9.301444243932576
+        test_auc: 2.3021358869347655
+        cumulative_positive_rate:
+          key:
+            key: 1.4658129805029452
+        label_positive_rate: 5.962133916683182
+      properties:
+        cumulative_positive_rate:
+          additionalProperties:
+            additionalProperties:
+              type: number
+            type: object
+          description: "Cumulative positive rates at various thresholds, including\
+            \ ascending (lower to higher thresholds) and descending (higher to lower\
+            \ thresholds). It indicates how the proportion of positive instances within\
+            \ the total instances changes as the classification threshold is adjusted."
+          type: object
+        label_positive_rate:
+          description: The percentage of users with positive label in the test set.
+          type: number
+        positive_rate_by_decile:
+          additionalProperties:
+            type: number
+          description: The percentage of positive examples (examples with a positive
+            label) in each of the ten equally-sized groups (deciles) of the test data
+            when this data is sorted based on the model's predicted scores.
+          type: object
+        test_auc:
+          description: AUC of the test set
+          type: number
+        test_ks:
+          description: KS of the test set
+          type: number
+        train_auc:
+          description: AUC of the training set
+          type: number
+        train_ks:
+          description: KS of the training set
+          type: number
+      type: object
+    models.AutoMLRunSummary:
+      example:
+        run_id: run_id
+        engagement_type: engagement_type
+        run_metrics:
+          train_ks: 3.616076749251911
+          test_ks: 7.061401241503109
+          positive_rate_by_decile:
+            key: 5.637376656633329
+          train_auc: 9.301444243932576
+          test_auc: 2.3021358869347655
+          cumulative_positive_rate:
+            key:
+              key: 1.4658129805029452
+          label_positive_rate: 5.962133916683182
+        number_of_inference_users: 0
+        run_description: run_description
+        number_of_train_users: 6
+        input_label_summary:
+          monthly_positive_rates:
+            key: 1.4658129805029452
+          num_input_labels: 5
+          num_training_users: 7
+          label_weight_counts:
+            key: 0
+          num_matched_labels: 2
+          monthly_counts:
+            key: 6
+          num_input_users: 5
+        status: status
+        timestamp: timestamp
+      properties:
+        engagement_type:
+          description: Engagement type of this product run
+          type: string
+        input_label_summary:
+          $ref: '#/components/schemas/models.InputLabelSummary'
+        number_of_inference_users:
+          description: NumberOfInferenceUsers is the number of users in model inference
+          type: integer
+        number_of_train_users:
+          description: NumberOfTrainUsers is the number of users in model training
+          type: integer
+        run_description:
+          description: RunDescription is the description of the AutoML training run
+          type: string
+        run_id:
+          description: RunID is the unique identifier for the AutoML run
+          type: string
+        run_metrics:
+          $ref: '#/components/schemas/models.AutoMLRunMetrics'
+        status:
+          description: RunStatus is the status of the AutoML training run
+          type: string
+        timestamp:
+          description: Timestamp is the time when the training run began
+          type: string
+      required:
+      - run_description
+      - run_id
+      - status
+      - timestamp
+      type: object
+      x-konfig-properties:
+        input_label_summary:
+          description: "Analysis of input labels detailing amounts of labels given,\
+            \ amounts of labels detected, monthly breakdowns of positive rates and\
+            \ counts, and a breakdown of weights by label value."
+        run_metrics:
+          description: RunMetrics is the metrics of the AutoML training run
+    models.AutoMLRunUsersGetRequest:
+      properties:
+        allow_users:
+          description: List of users to return user scores for
+          items:
+            $ref: '#/components/schemas/models.UserMetadata'
+          type: array
+        block_users:
+          description: List of users to omit from returned user scores
+          items:
+            $ref: '#/components/schemas/models.UserMetadata'
+          type: array
+        tag_filters:
+          description: Categorical Filters on pf_type metadata
+          items:
+            $ref: '#/components/schemas/models.TagCategoricalAttributeFilter'
+          type: array
+      type: object
+    models.AutoMLRunUsersGetResponse:
+      example:
+        last_scored_date: last_scored_date
+        user_scores:
+        - score: 0.8008281904610115
+          user_id: user_id
+        - score: 0.8008281904610115
+          user_id: user_id
+      properties:
+        last_scored_date:
+          description: Date string of last inference in `YYYY-MM-DD hh:mm:ss` format
+          type: string
+        user_scores:
+          description: List of user scores
+          items:
+            $ref: '#/components/schemas/models.UserScore'
+          type: array
+      required:
+      - user_scores
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.AutoMLRunsGetResponse:
+      example:
+        runs:
+        - run_id: run_id
+          engagement_type: engagement_type
+          run_metrics:
+            train_ks: 3.616076749251911
+            test_ks: 7.061401241503109
+            positive_rate_by_decile:
+              key: 5.637376656633329
+            train_auc: 9.301444243932576
+            test_auc: 2.3021358869347655
+            cumulative_positive_rate:
+              key:
+                key: 1.4658129805029452
+            label_positive_rate: 5.962133916683182
+          number_of_inference_users: 0
+          run_description: run_description
+          number_of_train_users: 6
+          input_label_summary:
+            monthly_positive_rates:
+              key: 1.4658129805029452
+            num_input_labels: 5
+            num_training_users: 7
+            label_weight_counts:
+              key: 0
+            num_matched_labels: 2
+            monthly_counts:
+              key: 6
+            num_input_users: 5
+          status: status
+          timestamp: timestamp
+        - run_id: run_id
+          engagement_type: engagement_type
+          run_metrics:
+            train_ks: 3.616076749251911
+            test_ks: 7.061401241503109
+            positive_rate_by_decile:
+              key: 5.637376656633329
+            train_auc: 9.301444243932576
+            test_auc: 2.3021358869347655
+            cumulative_positive_rate:
+              key:
+                key: 1.4658129805029452
+            label_positive_rate: 5.962133916683182
+          number_of_inference_users: 0
+          run_description: run_description
+          number_of_train_users: 6
+          input_label_summary:
+            monthly_positive_rates:
+              key: 1.4658129805029452
+            num_input_labels: 5
+            num_training_users: 7
+            label_weight_counts:
+              key: 0
+            num_matched_labels: 2
+            monthly_counts:
+              key: 6
+            num_input_users: 5
+          status: status
+          timestamp: timestamp
+      properties:
+        runs:
+          description: List of AutoML run summaries
+          items:
+            $ref: '#/components/schemas/models.AutoMLRunSummary'
+          type: array
+      required:
+      - runs
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.AutoMLUsersGetResponse:
+      example:
+        user_list:
+        - user_id: user_id
+        - user_id: user_id
+      properties:
+        user_list:
+          description: List of users' metadata
+          items:
+            $ref: '#/components/schemas/models.UserMetadata'
+          type: array
+      required:
+      - user_list
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.BatchUserPersonasRequest:
+      properties:
+        user_ids:
+          description: All user ids we want to fetch personas for
+          items:
+            type: string
+          type: array
+      required:
+      - user_ids
+      type: object
+    models.CashflowWindowStatistics:
+      description: Inflow and outflow for a given user in a given time window
+      example:
+        outflow_amount: 6.027456183070403
+        window_end: window_end
+        window_start: window_start
+        inflow_amount: 0.8008281904610115
+      properties:
+        inflow_amount:
+          description: Inflow amount on the given window
+          type: number
+        outflow_amount:
+          description: Outflow amount on the given window
+          type: number
+        window_end:
+          description: End time of the given window
+          type: string
+        window_start:
+          description: Start time of the given window
+          type: string
+      type: object
+    models.CategoricalAttributeFilter:
+      properties:
+        allowed_values:
+          description: Allowed values
+          example:
+          - "['0002']"
+          items:
+            type: string
+          type: array
+          x-konfig-original-example:
+          - "['0002']"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.CategoricalAttributeFilter-properties-allowed_values
+        blocked_values:
+          description: Blocked values
+          items:
+            type: string
+          type: array
+      required:
+      - allowed_values
+      - blocked_values
+      type: object
+    models.CategoryCashflow:
+      description: "Amount percentage for a given category, related to either the\
+        \ total inflow or outflow"
+      example:
+        amount: 6.027456183070403
+        taxonomy_path: taxonomy_path
+        percentage: 1.4658129805029452
+        name: name
+      properties:
+        amount:
+          description: Aggregate amount for the given category
+          type: number
+        name:
+          description: Human-friendly category name
+          type: string
+        percentage:
+          description: Absolute amount flow for the category
+          type: number
+        taxonomy_path:
+          description: Human-friendly category taxonomy path
+          type: string
+      type: object
+    models.ClientResponse:
+      example:
+        access_key_id: 823e064a-4cb7-11ee-be56-0242ac120002
+        is_disabled: false
+      properties:
+        access_key_id:
+          example: 823e064a-4cb7-11ee-be56-0242ac120002
+          type: string
+          x-konfig-original-example: 823e064a-4cb7-11ee-be56-0242ac120002
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.ClientResponse-properties-access_key_id
+        is_disabled:
+          example: false
+          type: boolean
+          x-konfig-original-example: false
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.ClientResponse-properties-is_disabled
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.FacetWeightObject:
+      example:
+        name: international_traveler
+        weight: 0.5
+      properties:
+        name:
+          description: Name of the facet
+          example: international_traveler
+          type: string
+          x-konfig-original-example: international_traveler
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.FacetWeightObject-properties-name
+        weight:
+          description: Weight of the facet
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.FacetWeightObject-properties-weight
+      required:
+      - name
+      - weight
+      type: object
+    models.InputLabelSummary:
+      example:
+        monthly_positive_rates:
+          key: 1.4658129805029452
+        num_input_labels: 5
+        num_training_users: 7
+        label_weight_counts:
+          key: 0
+        num_matched_labels: 2
+        monthly_counts:
+          key: 6
+        num_input_users: 5
+      properties:
+        label_weight_counts:
+          additionalProperties:
+            type: integer
+          description: "Counts of given labels, broken down by label and weight. The\
+            \ keys are stringified pairs of (label_value, weight_value)."
+          type: object
+        monthly_counts:
+          additionalProperties:
+            type: integer
+          description: "For each month (shown in YYYY-MM format), the number of labels\
+            \ given."
+          type: object
+        monthly_positive_rates:
+          additionalProperties:
+            type: number
+          description: "For each month (shown in YYYY-MM format), what is the rate\
+            \ of positive labels given."
+          type: object
+        num_input_labels:
+          description: Number of labels that were provided by the user.
+          type: integer
+        num_input_users:
+          description: Number of distinct users that were provided by the user
+          type: integer
+        num_matched_labels:
+          description: Number of data rows that will be used in training
+          type: integer
+        num_training_users:
+          description: Number of distinct users that will be used in training
+          type: integer
+      required:
+      - num_input_labels
+      - num_input_users
+      - num_matched_labels
+      - num_training_users
+      type: object
+    models.ListPersonasResponse:
+      description: Response of users linked to a given persona
+      example:
+        personas:
+        - persona_id: "1"
+          persona_name: Young Professional
+          creation_datetime: 2020-01-01T00:00:00
+        - persona_id: "1"
+          persona_name: Young Professional
+          creation_datetime: 2020-01-01T00:00:00
+      properties:
+        personas:
+          items:
+            $ref: '#/components/schemas/models.PersonaCreateResponse'
+          type: array
+      required:
+      - personas
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.Location:
+      description: Location where the transaction happened
+      example:
+        country: country
+        city: city
+        latitude: 5.637376656633329
+        primary_address: primary_address
+        city_code: city_code
+        full_address: full_address
+        state: state
+        postal_code: postal_code
+        type: type
+        longitude: 2.3021358869347655
+      properties:
+        city:
+          description: City name
+          type: string
+        city_code:
+          description: IBGE city code
+          type: string
+        country:
+          description: Country name
+          type: string
+        full_address:
+          description: "Full address (e.g., Av. Lúcio Costa 1234, Copacabana, Rio\
+            \ de Janeiro, Brasil)"
+          type: string
+        latitude:
+          description: Location latitude
+          type: number
+        longitude:
+          description: Location longitude
+          type: number
+        postal_code:
+          description: "Postal code (i.e., CEP, e.g., '22620-171')"
+          type: string
+        primary_address:
+          description: "Primary address (e.g., Av. Lúcio Costa, 1234)"
+          type: string
+        state:
+          description: State name
+          type: string
+        type:
+          description: "Type of location (e.g., personal, home, business, ...)"
+          type: string
+      type: object
+    models.LookalikeLabel:
+      properties:
+        timestamp:
+          description: "Timestamp to filter the features available to the model. Should\
+            \ reflect when the model is called: email sent date, loan initialized\
+            \ date, etc. If None, all user features will be used"
+          type: string
+        user_id:
+          description: UserID is the unique identifier for the user
+          type: string
+      required:
+      - user_id
+      type: object
+    models.MerchantInfo:
+      description: Inferred merchant info after transaction enrichment
+      example:
+        business_name: business_name
+        cnae: cnae
+        name: name
+        cnpj: cnpj
+        category: category
+      properties:
+        business_name:
+          description: Merchant business name
+          type: string
+        category:
+          description: Merchant category
+          type: string
+        cnae:
+          description: Merchant CNAE
+          type: string
+        cnpj:
+          description: Merchant CNPJ
+          type: string
+        name:
+          description: Merchant name
+          type: string
+      type: object
+    models.NumericalAttributeFilter:
+      description: Definition of a filter on an attribute of numerical type.
+      properties:
+        max_value:
+          description: Max attribute value
+          example: 100000
+          type: number
+          x-konfig-original-example: 100000
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.NumericalAttributeFilter-properties-max_value
+        min_value:
+          description: Min attribute value
+          example: 0
+          type: number
+          x-konfig-original-example: 0
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.NumericalAttributeFilter-properties-min_value
+      required:
+      - max_value
+      - min_value
+      type: object
+    models.PaginationMetadata:
+      example:
+        next_page: 2
+        page_size: 100
+      properties:
+        next_page:
+          description: Next page number
+          example: 2
+          type: integer
+          x-konfig-original-example: 2
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PaginationMetadata-properties-next_page
+        page_size:
+          description: Number of elements per page
+          example: 100
+          type: integer
+          x-konfig-original-example: 100
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PaginationMetadata-properties-page_size
+      required:
+      - next_page
+      - page_size
+      type: object
+    models.PercentileScore:
+      description: Percentile and associated score.
+      example:
+        score: 0.5
+        percentile: 0.1
+      properties:
+        percentile:
+          description: Percentile for which the score is being fetched
+          example: 0.1
+          type: number
+          x-konfig-original-example: 0.1
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PercentileScore-properties-percentile
+        score:
+          description: Score calculated for the given percentile
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PercentileScore-properties-score
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.PersonaCreateRequest:
+      description: "Defines a persona. Stores various weighted facets including their\
+        \ interests, demographics, location, company affinity, as well as predefined\
+        \ personas."
+      example:
+        pre_defined_personas:
+        - name: international_traveler
+          weight: 0.5
+        - name: international_traveler
+          weight: 0.5
+        demographic_facets:
+        - name: international_traveler
+          weight: 0.5
+        - name: international_traveler
+          weight: 0.5
+        persona_name: Young Professional
+        interest_facets:
+        - name: international_traveler
+          weight: 0.5
+        - name: international_traveler
+          weight: 0.5
+        locations:
+        - locations
+        - locations
+        company_facets:
+        - name: international_traveler
+          weight: 0.5
+        - name: international_traveler
+          weight: 0.5
+      properties:
+        company_facets:
+          description: |-
+            Optional list of behavioral facet component objects. Each object outlines how a user's likelihood
+            to consume from a particular company's products and how much it contributes to the persona definition. If left
+            empty, no company-based scoring is done. Company facets can be found by listing personas of facet type
+            'company'. Facet name must be a valid company facet in the persona taxonomy.
+          items:
+            $ref: '#/components/schemas/models.FacetWeightObject'
+          type: array
+        demographic_facets:
+          description: |-
+            Optional list of interest facet component objects. Defines how much each demographic attribute
+            (location, affluence, household composition, etc.)  weighs in the persona. If left empty, no demographic-based
+            scoring is done. Demographic facets can be found by listing personas of facet type 'demographic'. Facet name
+            must be a valid demographic facet in the persona taxonomy.
+          items:
+            $ref: '#/components/schemas/models.FacetWeightObject'
+          type: array
+        interest_facets:
+          description: |-
+            Optional list of interest facet component objects. Each object represents how much an interest
+            weighs in the persona. If left empty, no interest-based scoring is done. Interests can be found
+            by listing personas of facet type 'interest'. Facet name must be a valid interest in the persona taxonomy.
+          items:
+            $ref: '#/components/schemas/models.FacetWeightObject'
+          type: array
+        locations:
+          description: "Optional list of zip codes or city ids to filter users by.\
+            \ If left empty, no location-based filtering is done."
+          items:
+            type: string
+          type: array
+        persona_name:
+          description: A name for describing this persona. Used for easy human-friendly
+            identification.
+          example: Young Professional
+          type: string
+          x-konfig-original-example: Young Professional
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaCreateRequest-properties-persona_name
+        pre_defined_personas:
+          description: |-
+            Optional list of pre-defined persona facet component objects. Each object outlines how a pre-defined
+            persona ('Car Owners' or 'International Travelers') contributes to the persona definition. If left
+            empty, no predefined personas are incorporated into the persona definition. Pre-defined personas have
+            been optimized for financial use cases and have been validated at scale. They can be found by listing
+            personas of facet type 'pre_defined_persona'. Facet name must be a valid pre-defined persona facet in
+            the persona taxonomy.
+          items:
+            $ref: '#/components/schemas/models.FacetWeightObject'
+          type: array
+      required:
+      - persona_name
+      type: object
+    models.PersonaCreateResponse:
+      example:
+        persona_id: "1"
+        persona_name: Young Professional
+        creation_datetime: 2020-01-01T00:00:00
+      properties:
+        creation_datetime:
+          description: Creation datetime of persona
+          example: 2020-01-01T00:00:00
+          type: string
+          x-konfig-original-example: 2020-01-01T00:00:00
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaCreateResponse-properties-creation_datetime
+        persona_id:
+          description: Unique identifier for the persona
+          example: "1"
+          type: string
+          x-konfig-original-example: "1"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaCreateResponse-properties-persona_id
+        persona_name:
+          description: Name of the persona
+          example: Young Professional
+          type: string
+          x-konfig-original-example: Young Professional
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaCreateResponse-properties-persona_name
+      required:
+      - creation_datetime
+      - persona_id
+      - persona_name
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.PersonaDetailsResponse:
+      example:
+        persona_id: "1"
+        creation_datetime: 2020-01-01T00:00:00
+        persona_score_statistics:
+          total_users_above_threshold: 1000
+          total_users_with_non_zero_score: 1000
+          persona_score_threshold: 0.5
+          score_average: 0.5
+          score_percentiles:
+            percentile_90: 0.9
+            percentile_70: 0.7
+            percentile_80: 0.8
+            percentile_50: 0.5
+            percentile_60: 0.6
+            percentile_30: 0.3
+            percentile_40: 0.4
+            percentile_10: 0.1
+            percentile_20: 0.2
+          maximum_user_score: 0.5
+          minimum_user_score: 0.5
+          score_standard_deviation: 0.5
+        definition:
+          pre_defined_personas:
+          - name: international_traveler
+            weight: 0.5
+          - name: international_traveler
+            weight: 0.5
+          demographic_facets:
+          - name: international_traveler
+            weight: 0.5
+          - name: international_traveler
+            weight: 0.5
+          persona_name: Young Professional
+          interest_facets:
+          - name: international_traveler
+            weight: 0.5
+          - name: international_traveler
+            weight: 0.5
+          locations:
+          - locations
+          - locations
+          company_facets:
+          - name: international_traveler
+            weight: 0.5
+          - name: international_traveler
+            weight: 0.5
+      properties:
+        creation_datetime:
+          description: Creation datetime of persona
+          example: 2020-01-01T00:00:00
+          type: string
+          x-konfig-original-example: 2020-01-01T00:00:00
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaDetailsResponse-properties-creation_datetime
+        definition:
+          $ref: '#/components/schemas/models.PersonaCreateRequest'
+        persona_id:
+          description: Unique identifier for the persona
+          example: "1"
+          type: string
+          x-konfig-original-example: "1"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaDetailsResponse-properties-persona_id
+        persona_score_statistics:
+          $ref: '#/components/schemas/models.PersonaScoreStatistics'
+      required:
+      - creation_datetime
+      - definition
+      - persona_id
+      - persona_score_statistics
+      type: object
+      x-konfig-properties:
+        definition:
+          description: The persona definition used to create this persona
+        persona_score_statistics:
+          description: Statistical attributes about the persona score distribution
+      x-konfig-is-used-in-successful-response: true
+    models.PersonaScorePercentiles:
+      description: Percentile scores for users scored for a particular persona.
+      example:
+        percentile_90: 0.9
+        percentile_70: 0.7
+        percentile_80: 0.8
+        percentile_50: 0.5
+        percentile_60: 0.6
+        percentile_30: 0.3
+        percentile_40: 0.4
+        percentile_10: 0.1
+        percentile_20: 0.2
+      properties:
+        percentile_10:
+          example: 0.1
+          type: number
+          x-konfig-original-example: 0.1
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_10
+        percentile_20:
+          example: 0.2
+          type: number
+          x-konfig-original-example: 0.2
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_20
+        percentile_30:
+          example: 0.3
+          type: number
+          x-konfig-original-example: 0.3
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_30
+        percentile_40:
+          example: 0.4
+          type: number
+          x-konfig-original-example: 0.4
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_40
+        percentile_50:
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_50
+        percentile_60:
+          example: 0.6
+          type: number
+          x-konfig-original-example: 0.6
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_60
+        percentile_70:
+          example: 0.7
+          type: number
+          x-konfig-original-example: 0.7
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_70
+        percentile_80:
+          example: 0.8
+          type: number
+          x-konfig-original-example: 0.8
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_80
+        percentile_90:
+          example: 0.9
+          type: number
+          x-konfig-original-example: 0.9
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_90
+      type: object
+    models.PersonaScoreStatistics:
+      description: Statistical attributes about the score distribution for a particular
+        persona.
+      example:
+        total_users_above_threshold: 1000
+        total_users_with_non_zero_score: 1000
+        persona_score_threshold: 0.5
+        score_average: 0.5
+        score_percentiles:
+          percentile_90: 0.9
+          percentile_70: 0.7
+          percentile_80: 0.8
+          percentile_50: 0.5
+          percentile_60: 0.6
+          percentile_30: 0.3
+          percentile_40: 0.4
+          percentile_10: 0.1
+          percentile_20: 0.2
+        maximum_user_score: 0.5
+        minimum_user_score: 0.5
+        score_standard_deviation: 0.5
+      properties:
+        maximum_user_score:
+          description: Highest persona score assigned to a user for this persona
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-maximum_user_score
+        minimum_user_score:
+          description: Lowest persona score assigned to a user for this persona
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-minimum_user_score
+        persona_score_threshold:
+          description: Score threshold used to determine whether a user belongs to
+            this persona
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-persona_score_threshold
+        score_average:
+          description: Average score over all scored users in this persona
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-score_average
+        score_percentiles:
+          $ref: '#/components/schemas/models.PersonaScorePercentiles'
+        score_standard_deviation:
+          description: Standard deviation over all scored users in this persona
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-score_standard_deviation
+        total_users_above_threshold:
+          description: Total number of users who meet or exceed the score threshold
+            to be considered part of this persona.
+          example: 1000
+          type: integer
+          x-konfig-original-example: 1000
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-total_users_above_threshold
+        total_users_with_non_zero_score:
+          description: Total number of users who have received a score for this persona.
+          example: 1000
+          type: integer
+          x-konfig-original-example: 1000
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-total_users_with_non_zero_score
+      required:
+      - maximum_user_score
+      - minimum_user_score
+      - persona_score_threshold
+      - score_average
+      - score_percentiles
+      - score_standard_deviation
+      - total_users_above_threshold
+      - total_users_with_non_zero_score
+      type: object
+      x-konfig-properties:
+        score_percentiles:
+          description: Percentile distribution of scores for users who have been assigned
+            a score for this persona
+    models.PersonaUser:
+      description: User associated with a given persona
+      example:
+        score: 0.5
+        id: "1"
+      properties:
+        id:
+          description: Unique identifier for the user
+          example: "1"
+          type: string
+          x-konfig-original-example: "1"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaUser-properties-id
+        score:
+          description: "Relevance score of user in this persona. In range `[0,1]`"
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaUser-properties-score
+      required:
+      - id
+      type: object
+    models.PersonaUsersResponse:
+      description: Response of users linked to a given persona
+      example:
+        users:
+        - score: 0.5
+          id: "1"
+        - score: 0.5
+          id: "1"
+      properties:
+        users:
+          description: Top users belonging to this persona
+          items:
+            $ref: '#/components/schemas/models.PersonaUser'
+          type: array
+      required:
+      - users
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.PostPersonaUsersRequest:
+      description: Extra information for filtering users
+      properties:
+        birth_date:
+          $ref: '#/components/schemas/models.TimestampAttributeFilter'
+        blocklist:
+          description: List of user ids to not be included in the response
+          example:
+          - "['1234']"
+          items:
+            type: string
+          type: array
+          x-konfig-original-example:
+          - "['1234']"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PostPersonaUsersRequest-properties-blocklist
+        branch:
+          $ref: '#/components/schemas/models.CategoricalAttributeFilter'
+        cbo_code:
+          $ref: '#/components/schemas/models.CategoricalAttributeFilter'
+        declared_monthly_income:
+          $ref: '#/components/schemas/models.NumericalAttributeFilter'
+        job_title:
+          $ref: '#/components/schemas/models.CategoricalAttributeFilter'
+      required:
+      - blocklist
+      - branch
+      type: object
+      x-konfig-properties:
+        birth_date:
+          description: Filter birth date based on a date range
+        branch:
+          description: Filter branch based on a list of allowed values
+        cbo_code:
+          description: Filter cbo code based on a list of allowed values
+        declared_monthly_income:
+          description: Filter declared monthly income based on a numeric range
+        job_title:
+          description: Filter job title based on a list of allowed values
+    models.TagCategoricalAttributeFilter:
+      properties:
+        allowed_values:
+          description: Allowed values
+          example:
+          - "['0002']"
+          items:
+            type: string
+          type: array
+          x-konfig-original-example:
+          - "['0002']"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.TagCategoricalAttributeFilter-properties-allowed_values
+        blocked_values:
+          description: Blocked values
+          items:
+            type: string
+          type: array
+        tag_name:
+          description: Tag name
+          type: string
+      required:
+      - allowed_values
+      - blocked_values
+      - tag_name
+      type: object
+    models.TimestampAttributeFilter:
+      description: Definition of a filter on an attribute of timestamp type.
+      properties:
+        max_value:
+          description: Max attribute value
+          example: 2020-01-01T00:00:00
+          type: string
+          x-konfig-original-example: 2020-01-01T00:00:00
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.TimestampAttributeFilter-properties-max_value
+        min_value:
+          description: Min attribute value
+          example: 2000-01-01T00:00:00
+          type: string
+          x-konfig-original-example: 2000-01-01T00:00:00
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.TimestampAttributeFilter-properties-min_value
+      required:
+      - max_value
+      - min_value
+      type: object
+    models.TopLevelCategoryCashflow:
+      description: Amount percentage for a given top level category. As well as subcategories
+        division
+      example:
+        amount: 0.8008281904610115
+        percentage: 5.962133916683182
+        name: name
+        categories:
+        - amount: 6.027456183070403
+          taxonomy_path: taxonomy_path
+          percentage: 1.4658129805029452
+          name: name
+        - amount: 6.027456183070403
+          taxonomy_path: taxonomy_path
+          percentage: 1.4658129805029452
+          name: name
+      properties:
+        amount:
+          description: Aggregate amount for the given category
+          type: number
+        categories:
+          description: Detailed predicted categories under the top-level
+          items:
+            $ref: '#/components/schemas/models.CategoryCashflow'
+          type: array
+        name:
+          description: Human-friendly category name
+          type: string
+        percentage:
+          description: Absolute amount flow for the category
+          type: number
+      type: object
+    models.TransactionEnrichmentResponse:
+      example:
+        date: date
+        transaction_id: transaction_id
+        transfer_metadata:
+          reason: reason
+          receiver:
+            account_number: account_number
+            document_name: document_name
+            branch_number: branch_number
+            document_number: document_number
+            name: name
+            routing_number_ISPB: routing_number_ISPB
+            routing_number: routing_number
+          sender:
+            account_number: account_number
+            document_name: document_name
+            branch_number: branch_number
+            document_number: document_number
+            name: name
+            routing_number_ISPB: routing_number_ISPB
+            routing_number: routing_number
+          reference_number: reference_number
+          payment_method: payment_method
+        amount: 0.8008281904610115
+        transaction_status: transaction_status
+        category_name: category_name
+        transaction_location:
+          country: country
+          city: city
+          latitude: 5.637376656633329
+          primary_address: primary_address
+          city_code: city_code
+          full_address: full_address
+          state: state
+          postal_code: postal_code
+          type: type
+          longitude: 2.3021358869347655
+        description: description
+        number_of_installments: 1
+        merchant_info:
+          business_name: business_name
+          cnae: cnae
+          name: name
+          cnpj: cnpj
+          category: category
+        installment_start_date: installment_start_date
+        current_installment: 6
+        currency: currency
+        category: category
+        total_installed_amount: 5.962133916683182
+      properties:
+        description:
+          description: Transaction description
+          type: string
+        amount:
+          description: Amount of transaction
+          type: number
+        category:
+          description: Category enum of transaction
+          type: string
+        category_name:
+          description: Category human-readable name of transaction
+          type: string
+        currency:
+          description: Transaction currency
+          type: string
+        current_installment:
+          description: "Current installment. If 0, it is not an installment"
+          type: integer
+        date:
+          description: Date of transaction
+          type: string
+        installment_start_date:
+          description: "First installment date, that is, the purchase date"
+          type: string
+        merchant_info:
+          $ref: '#/components/schemas/models.MerchantInfo'
+        number_of_installments:
+          description: Number of installments
+          type: integer
+        total_installed_amount:
+          description: Sum of amounts for all installments
+          type: number
+        transaction_id:
+          description: Unique transaction id
+          type: string
+        transaction_location:
+          $ref: '#/components/schemas/models.Location'
+        transaction_status:
+          description: Transaction status
+          type: string
+        transfer_metadata:
+          $ref: '#/components/schemas/models.TransferMetadata'
+      type: object
+      x-konfig-properties:
+        merchant_info:
+          description: "Contains metadata about the merchant, if available."
+        transaction_location:
+          description: Location where the transaction happened
+        transfer_metadata:
+          description: "Contains metadata about the payment method, the sender, and\
+            \ the receiver."
+    models.TransactionEnrichmentStatisticsResponse:
+      description: General statistics for a given transaction enrichment module
+      example:
+        user_reach: 1000
+        transaction_count: 10000
+      properties:
+        transaction_count:
+          description: Number of transactions in the module
+          example: 10000
+          type: integer
+          x-konfig-original-example: 10000
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.TransactionEnrichmentStatisticsResponse-properties-transaction_count
+        user_reach:
+          description: Number of distinct users in the module
+          example: 1000
+          type: integer
+          x-konfig-original-example: 1000
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.TransactionEnrichmentStatisticsResponse-properties-user_reach
+      required:
+      - transaction_count
+      - user_reach
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.TransactionEnrichmentUser:
+      example:
+        user_id: "123456"
+        first_transaction_date: 2020-01-01T00:00:00Z
+        last_transaction_date: 2020-01-01T00:00:00Z
+      properties:
+        first_transaction_date:
+          description: Date for first transaction registered for a given user.
+          example: 2020-01-01T00:00:00Z
+          type: string
+          x-konfig-original-example: 2020-01-01T00:00:00Z
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.TransactionEnrichmentUser-properties-first_transaction_date
+        last_transaction_date:
+          description: Date for last transaction registered for a given user.
+          example: 2020-01-01T00:00:00Z
+          type: string
+          x-konfig-original-example: 2020-01-01T00:00:00Z
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.TransactionEnrichmentUser-properties-last_transaction_date
+        user_id:
+          description: Unique user identifier
+          example: "123456"
+          type: string
+          x-konfig-original-example: "123456"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.TransactionEnrichmentUser-properties-user_id
+      required:
+      - first_transaction_date
+      - last_transaction_date
+      - user_id
+      type: object
+    models.TransactionEnrichmentUsersResponse:
+      description: Page of users of a given module
+      example:
+        pagination_metadata:
+          next_page: 2
+          page_size: 100
+        users:
+        - user_id: "123456"
+          first_transaction_date: 2020-01-01T00:00:00Z
+          last_transaction_date: 2020-01-01T00:00:00Z
+        - user_id: "123456"
+          first_transaction_date: 2020-01-01T00:00:00Z
+          last_transaction_date: 2020-01-01T00:00:00Z
+      properties:
+        pagination_metadata:
+          $ref: '#/components/schemas/models.PaginationMetadata'
+        users:
+          description: List of users related to the transactions
+          items:
+            $ref: '#/components/schemas/models.TransactionEnrichmentUser'
+          type: array
+      required:
+      - pagination_metadata
+      - users
+      type: object
+      x-konfig-properties:
+        pagination_metadata:
+          description: Pagination metadata needed to know the next call
+      x-konfig-is-used-in-successful-response: true
+    models.TransferMetadata:
+      description: Metadata related to the money transfer and involved parties
+      example:
+        reason: reason
+        receiver:
+          account_number: account_number
+          document_name: document_name
+          branch_number: branch_number
+          document_number: document_number
+          name: name
+          routing_number_ISPB: routing_number_ISPB
+          routing_number: routing_number
+        sender:
+          account_number: account_number
+          document_name: document_name
+          branch_number: branch_number
+          document_number: document_number
+          name: name
+          routing_number_ISPB: routing_number_ISPB
+          routing_number: routing_number
+        reference_number: reference_number
+        payment_method: payment_method
+      properties:
+        payment_method:
+          description: Transfer payment method
+          type: string
+        reason:
+          description: Transfer inferred reason
+          type: string
+        receiver:
+          $ref: '#/components/schemas/models.TransferParty'
+        reference_number:
+          description: Transfer reference number
+          type: string
+        sender:
+          $ref: '#/components/schemas/models.TransferParty'
+      type: object
+      x-konfig-properties:
+        receiver:
+          description: Transfer party that receives the money
+        sender:
+          description: Transfer party that sends the money
+    models.TransferParty:
+      description: Attributes related to the sender or receiver of a given transaction
+      example:
+        account_number: account_number
+        document_name: document_name
+        branch_number: branch_number
+        document_number: document_number
+        name: name
+        routing_number_ISPB: routing_number_ISPB
+        routing_number: routing_number
+      properties:
+        account_number:
+          description: Party account number
+          type: string
+        branch_number:
+          description: Party branch number
+          type: string
+        document_name:
+          description: Party document name
+          type: string
+        document_number:
+          description: Party document number
+          type: string
+        name:
+          description: Party name
+          type: string
+        routing_number:
+          description: Party routing number
+          type: string
+        routing_number_ISPB:
+          description: Party ISPB routing number
+          type: string
+      type: object
+    models.UserCashflowHistoryResponse:
+      description: Historic of cashflows for a given user
+      example:
+        user_id: "123456"
+        windows:
+        - outflow_amount: 6.027456183070403
+          window_end: window_end
+          window_start: window_start
+          inflow_amount: 0.8008281904610115
+        - outflow_amount: 6.027456183070403
+          window_end: window_end
+          window_start: window_start
+          inflow_amount: 0.8008281904610115
+      properties:
+        user_id:
+          description: User identifier
+          example: "123456"
+          type: string
+          x-konfig-original-example: "123456"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserCashflowHistoryResponse-properties-user_id
+        windows:
+          description: Windows with calculated flows
+          items:
+            $ref: '#/components/schemas/models.CashflowWindowStatistics'
+          type: array
+      required:
+      - user_id
+      - windows
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.UserCashflowPerCategoryResponse:
+      example:
+        user_id: user_id
+        inflow_categories:
+        - amount: 0.8008281904610115
+          percentage: 5.962133916683182
+          name: name
+          categories:
+          - amount: 6.027456183070403
+            taxonomy_path: taxonomy_path
+            percentage: 1.4658129805029452
+            name: name
+          - amount: 6.027456183070403
+            taxonomy_path: taxonomy_path
+            percentage: 1.4658129805029452
+            name: name
+        - amount: 0.8008281904610115
+          percentage: 5.962133916683182
+          name: name
+          categories:
+          - amount: 6.027456183070403
+            taxonomy_path: taxonomy_path
+            percentage: 1.4658129805029452
+            name: name
+          - amount: 6.027456183070403
+            taxonomy_path: taxonomy_path
+            percentage: 1.4658129805029452
+            name: name
+        outflow_categories:
+        - amount: 0.8008281904610115
+          percentage: 5.962133916683182
+          name: name
+          categories:
+          - amount: 6.027456183070403
+            taxonomy_path: taxonomy_path
+            percentage: 1.4658129805029452
+            name: name
+          - amount: 6.027456183070403
+            taxonomy_path: taxonomy_path
+            percentage: 1.4658129805029452
+            name: name
+        - amount: 0.8008281904610115
+          percentage: 5.962133916683182
+          name: name
+          categories:
+          - amount: 6.027456183070403
+            taxonomy_path: taxonomy_path
+            percentage: 1.4658129805029452
+            name: name
+          - amount: 6.027456183070403
+            taxonomy_path: taxonomy_path
+            percentage: 1.4658129805029452
+            name: name
+      properties:
+        inflow_categories:
+          description: Inflow discriminated by category
+          items:
+            $ref: '#/components/schemas/models.TopLevelCategoryCashflow'
+          type: array
+        outflow_categories:
+          description: Outflow discriminated by category
+          items:
+            $ref: '#/components/schemas/models.TopLevelCategoryCashflow'
+          type: array
+        user_id:
+          description: User identifier
+          type: string
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.UserMetadata:
+      example:
+        user_id: user_id
+      properties:
+        user_id:
+          description: UserID is the unique identifier for the user
+          type: string
+      required:
+      - user_id
+      type: object
+    models.UserPersonaScore:
+      description: User associated with a given persona
+      example:
+        persona_id: "1"
+        persona_name: Young Professional
+        persona_score: 0.5
+      properties:
+        persona_id:
+          description: Unique identifier for the persona
+          example: "1"
+          type: string
+          x-konfig-original-example: "1"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserPersonaScore-properties-persona_id
+        persona_name:
+          description: Name of the persona
+          example: Young Professional
+          type: string
+          x-konfig-original-example: Young Professional
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserPersonaScore-properties-persona_name
+        persona_score:
+          description: "Relevance score of user in this persona. In range `[0,1]`"
+          example: 0.5
+          type: number
+          x-konfig-original-example: 0.5
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserPersonaScore-properties-persona_score
+      required:
+      - persona_id
+      - persona_name
+      type: object
+    models.UserPersonasResponse:
+      description: Response of personas linked to a given user
+      example:
+        user_id: "1"
+        persona_scores:
+        - persona_id: "1"
+          persona_name: Young Professional
+          persona_score: 0.5
+        - persona_id: "1"
+          persona_name: Young Professional
+          persona_score: 0.5
+      properties:
+        persona_scores:
+          description: Ranked list of personas for this user
+          items:
+            $ref: '#/components/schemas/models.UserPersonaScore'
+          type: array
+        user_id:
+          description: Unique identifier for the user
+          example: "1"
+          type: string
+          x-konfig-original-example: "1"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserPersonasResponse-properties-user_id
+      required:
+      - persona_scores
+      - user_id
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    models.UserScore:
+      example:
+        score: 0.8008281904610115
+        user_id: user_id
+      properties:
+        score:
+          description: Model inference score for the user
+          type: number
+        user_id:
+          description: UserID is the unique identifier for the user
+          type: string
+      required:
+      - score
+      - user_id
+      type: object
+    models.UserTransactionsResponse:
+      description: Historic of enriched transactions of a given user
+      example:
+        pagination_metadata:
+          next_page: 2
+          page_size: 100
+        user_id: "123456"
+        enriched_transactions:
+        - date: date
+          transaction_id: transaction_id
+          transfer_metadata:
+            reason: reason
+            receiver:
+              account_number: account_number
+              document_name: document_name
+              branch_number: branch_number
+              document_number: document_number
+              name: name
+              routing_number_ISPB: routing_number_ISPB
+              routing_number: routing_number
+            sender:
+              account_number: account_number
+              document_name: document_name
+              branch_number: branch_number
+              document_number: document_number
+              name: name
+              routing_number_ISPB: routing_number_ISPB
+              routing_number: routing_number
+            reference_number: reference_number
+            payment_method: payment_method
+          amount: 0.8008281904610115
+          transaction_status: transaction_status
+          category_name: category_name
+          transaction_location:
+            country: country
+            city: city
+            latitude: 5.637376656633329
+            primary_address: primary_address
+            city_code: city_code
+            full_address: full_address
+            state: state
+            postal_code: postal_code
+            type: type
+            longitude: 2.3021358869347655
+          description: description
+          number_of_installments: 1
+          merchant_info:
+            business_name: business_name
+            cnae: cnae
+            name: name
+            cnpj: cnpj
+            category: category
+          installment_start_date: installment_start_date
+          current_installment: 6
+          currency: currency
+          category: category
+          total_installed_amount: 5.962133916683182
+        - date: date
+          transaction_id: transaction_id
+          transfer_metadata:
+            reason: reason
+            receiver:
+              account_number: account_number
+              document_name: document_name
+              branch_number: branch_number
+              document_number: document_number
+              name: name
+              routing_number_ISPB: routing_number_ISPB
+              routing_number: routing_number
+            sender:
+              account_number: account_number
+              document_name: document_name
+              branch_number: branch_number
+              document_number: document_number
+              name: name
+              routing_number_ISPB: routing_number_ISPB
+              routing_number: routing_number
+            reference_number: reference_number
+            payment_method: payment_method
+          amount: 0.8008281904610115
+          transaction_status: transaction_status
+          category_name: category_name
+          transaction_location:
+            country: country
+            city: city
+            latitude: 5.637376656633329
+            primary_address: primary_address
+            city_code: city_code
+            full_address: full_address
+            state: state
+            postal_code: postal_code
+            type: type
+            longitude: 2.3021358869347655
+          description: description
+          number_of_installments: 1
+          merchant_info:
+            business_name: business_name
+            cnae: cnae
+            name: name
+            cnpj: cnpj
+            category: category
+          installment_start_date: installment_start_date
+          current_installment: 6
+          currency: currency
+          category: category
+          total_installed_amount: 5.962133916683182
+      properties:
+        enriched_transactions:
+          description: List of enriched transactions
+          items:
+            $ref: '#/components/schemas/models.TransactionEnrichmentResponse'
+          type: array
+        pagination_metadata:
+          $ref: '#/components/schemas/models.PaginationMetadata'
+        user_id:
+          description: User identifier
+          example: "123456"
+          type: string
+          x-konfig-original-example: "123456"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserTransactionsResponse-properties-user_id
+      required:
+      - enriched_transactions
+      - pagination_metadata
+      - user_id
+      type: object
+      x-konfig-properties:
+        pagination_metadata:
+          description: Pagination metadata needed to know the next call
+      x-konfig-is-used-in-successful-response: true
+    models.UserTransactionsStatisticsResponse:
+      description: Transaction statistics for a given user
+      example:
+        median_transaction_value: 100
+        average_transaction_value: 100
+        transaction_count: 100
+      properties:
+        average_transaction_value:
+          description: Average transaction value
+          example: 100
+          type: number
+          x-konfig-original-example: 100
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserTransactionsStatisticsResponse-properties-average_transaction_value
+        median_transaction_value:
+          description: Median transaction value
+          example: 100
+          type: number
+          x-konfig-original-example: 100
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserTransactionsStatisticsResponse-properties-median_transaction_value
+        transaction_count:
+          description: Number of transactions
+          example: 100
+          type: integer
+          x-konfig-original-example: 100
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.UserTransactionsStatisticsResponse-properties-transaction_count
+      required:
+      - transaction_count
+      type: object
+      x-konfig-is-used-in-successful-response: true
+    AutoMlServiceGetRunStatusResponse:
+      type: string
+      x-konfig-is-used-in-successful-response: true
+    AutoMlServiceGetRunStatusBatchScoresResponse:
+      type: string
+      x-konfig-is-used-in-successful-response: true
+    PersonasGetAllFacetAttributesResponse:
+      items:
+        $ref: '#/components/schemas/models.UserPersonasResponse'
+      type: array
+      x-konfig-is-used-in-successful-response: true
+    HealthCheckStatusResponse:
+      type: string
+      x-konfig-is-used-in-successful-response: true
+    PersonasDeleteDefinitionResponse:
+      type: string
+      x-konfig-is-used-in-successful-response: true
+    StatisticsGetLatestMonthResponse:
+      type: string
+      x-konfig-is-used-in-successful-response: true
+    EnrichedTransactionsGetUserCashflowStatisticsResponse:
+      items:
+        $ref: '#/components/schemas/models.AccountCashflowOverview'
+      type: array
+      x-konfig-is-used-in-successful-response: true
+    konfig-generated-schema-paths--automl-runs-run_id-users-post-parameters-1-schema:
+      example: 1
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--automl-runs-run_id-users-post-parameters-2-schema:
+      example: 500
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--automl-users-get-parameters-1-schema:
+      example: 1
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--automl-users-get-parameters-2-schema:
+      example: 500
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--module-transaction-enrichment-users-get-parameters-2-schema:
+      example: 1
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--module-transaction-enrichment-users-get-parameters-3-schema:
+      example: 100
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--persona-get-parameters-2-schema:
+      example: 1
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--persona-post-parameters-0-schema:
+      example: '"latest"'
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-paths--persona-persona_id-percentile_score-get-parameters-1-schema:
+      example: 50
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--persona-persona_id-users-post-parameters-2-schema:
+      example: 1
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--persona-persona_id-users-post-parameters-3-schema:
+      example: 500
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--user-user_id-transactions-get-parameters-2-schema:
+      example: 1
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-paths--user-user_id-transactions-get-parameters-3-schema:
+      example: 100
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.AuthRequest-properties-client_id:
+      example: 4681f83e-a4e9-11ee-a506-0242ac120002
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.AuthRequest-properties-client_secret:
+      example: W5qNTpWIT81r5qE3wHrtwXBujKdmGAvx
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.AuthResponse-properties-api_key:
+      example: v2.local.V0bmLbcYzFAs4w0VLqdV-XBssuwRPIflBf94lhrUHu3Lcg18Qiwb4fPgqIc9pLqvhDYPQhTDho5sBCWV_ZwwJ4sKYEc0g5GKEn9BUA8d-KnIbHnLyYKuqMDZflzQSCUdhwnFAcDqAlIqqpENdDVf01IL4wyhyC2F3CLqLVnwWCCFLonLjwpi7eNztZJ4REYPellWBDq3jL-2td4fQmcUvhGXz0T7GBlg9jGtOrs47sbUWS_QHgd1esEjgYm823OdTAk5yjuWD7CKF8P7bqg66A.bnVsbA
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.CategoricalAttributeFilter-properties-allowed_values:
+      example:
+      - "['0002']"
+      items:
+        example: "['0002']"
+        type: string
+      type: array
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.ClientResponse-properties-access_key_id:
+      example: 823e064a-4cb7-11ee-be56-0242ac120002
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.ClientResponse-properties-is_disabled:
+      example: false
+      type: boolean
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.FacetWeightObject-properties-name:
+      example: international_traveler
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.FacetWeightObject-properties-weight:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.NumericalAttributeFilter-properties-max_value:
+      example: 100000
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.NumericalAttributeFilter-properties-min_value:
+      example: 0
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PaginationMetadata-properties-next_page:
+      example: 2
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PaginationMetadata-properties-page_size:
+      example: 100
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PercentileScore-properties-percentile:
+      example: 0.1
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PercentileScore-properties-score:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaCreateRequest-properties-persona_name:
+      example: Young Professional
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaCreateResponse-properties-creation_datetime:
+      example: 2020-01-01T00:00:00
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaCreateResponse-properties-persona_id:
+      example: "1"
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaCreateResponse-properties-persona_name:
+      example: Young Professional
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaDetailsResponse-properties-creation_datetime:
+      example: 2020-01-01T00:00:00
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaDetailsResponse-properties-persona_id:
+      example: "1"
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_10:
+      example: 0.1
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_20:
+      example: 0.2
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_30:
+      example: 0.3
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_40:
+      example: 0.4
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_50:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_60:
+      example: 0.6
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_70:
+      example: 0.7
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_80:
+      example: 0.8
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScorePercentiles-properties-percentile_90:
+      example: 0.9
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-maximum_user_score:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-minimum_user_score:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-persona_score_threshold:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-score_average:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-score_standard_deviation:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-total_users_above_threshold:
+      example: 1000
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaScoreStatistics-properties-total_users_with_non_zero_score:
+      example: 1000
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaUser-properties-id:
+      example: "1"
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PersonaUser-properties-score:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.PostPersonaUsersRequest-properties-blocklist:
+      example:
+      - "['1234']"
+      items:
+        example: "['1234']"
+        type: string
+      type: array
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.TagCategoricalAttributeFilter-properties-allowed_values:
+      example:
+      - "['0002']"
+      items:
+        example: "['0002']"
+        type: string
+      type: array
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.TimestampAttributeFilter-properties-max_value:
+      example: 2020-01-01T00:00:00
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.TimestampAttributeFilter-properties-min_value:
+      example: 2000-01-01T00:00:00
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.TransactionEnrichmentStatisticsResponse-properties-transaction_count:
+      example: 10000
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.TransactionEnrichmentStatisticsResponse-properties-user_reach:
+      example: 1000
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.TransactionEnrichmentUser-properties-first_transaction_date:
+      example: 2020-01-01T00:00:00Z
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.TransactionEnrichmentUser-properties-last_transaction_date:
+      example: 2020-01-01T00:00:00Z
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.TransactionEnrichmentUser-properties-user_id:
+      example: "123456"
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserCashflowHistoryResponse-properties-user_id:
+      example: "123456"
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserPersonaScore-properties-persona_id:
+      example: "1"
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserPersonaScore-properties-persona_name:
+      example: Young Professional
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserPersonaScore-properties-persona_score:
+      example: 0.5
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserPersonasResponse-properties-user_id:
+      example: "1"
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserTransactionsResponse-properties-user_id:
+      example: "123456"
+      type: string
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserTransactionsStatisticsResponse-properties-average_transaction_value:
+      example: 100
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserTransactionsStatisticsResponse-properties-median_transaction_value:
+      example: 100
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-components-schemas-models.UserTransactionsStatisticsResponse-properties-transaction_count:
+      example: 100
+      type: number
+      x-do-not-generate: true
+    konfig-generated-schema-single-parameter-schema-post--auth-token:
+      properties:
+        client_id:
+          example: 4681f83e-a4e9-11ee-a506-0242ac120002
+          type: string
+          x-konfig-original-example: 4681f83e-a4e9-11ee-a506-0242ac120002
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.AuthRequest-properties-client_id
+        client_secret:
+          example: W5qNTpWIT81r5qE3wHrtwXBujKdmGAvx
+          type: string
+          x-konfig-original-example: W5qNTpWIT81r5qE3wHrtwXBujKdmGAvx
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.AuthRequest-properties-client_secret
+      required:
+      - client_id
+      - client_secret
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter: []
+    konfig-generated-schema-single-parameter-schema-post--automl-lookalike:
+      properties:
+        model_version:
+          type: string
+        module-id:
+          type: string
+        engagement_type:
+          description: "Intended use case of this product, between MULTI_ENGAGE and\
+            \ SINGLE_ENGAGE"
+          type: string
+        negative_label_users:
+          description: "List of negative users in lookalike model. Model will be trained\
+            \ to identify users dissimilar to these users. If None, negative users\
+            \ will be generated from data. List length must be either 0 or greater\
+            \ than 10."
+          items:
+            $ref: '#/components/schemas/models.LookalikeLabel'
+          type: array
+        positive_label_users:
+          description: List of positive users in lookalike model. Model will be trained
+            to identify users similar to these users. This list must contain at least
+            ten elements.
+          items:
+            $ref: '#/components/schemas/models.LookalikeLabel'
+          type: array
+        run_description:
+          description: Custom run description to attach to run
+          type: string
+      required:
+      - engagement_type
+      - positive_label_users
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - model_version
+      - module-id
+    konfig-generated-schema-single-parameter-schema-get--automl-runs:
+      properties:
+        module-id:
+          type: string
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - module-id
+    konfig-generated-schema-single-parameter-schema-get--automl-runs-run_id:
+      properties:
+        run_id:
+          type: string
+      required:
+      - run_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - run_id
+    konfig-generated-schema-single-parameter-schema-post--automl-runs-run_id-generate_batch_scores:
+      properties:
+        run_id:
+          type: string
+        module-id:
+          type: string
+      required:
+      - run_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - run_id
+      - module-id
+    konfig-generated-schema-single-parameter-schema-post--automl-runs-run_id-rescore:
+      properties:
+        run_id:
+          type: string
+      required:
+      - run_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - run_id
+    konfig-generated-schema-single-parameter-schema-get--automl-runs-run_id-status:
+      properties:
+        run_id:
+          type: string
+      required:
+      - run_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - run_id
+    konfig-generated-schema-single-parameter-schema-get--automl-runs-run_id-status_batch_scores:
+      properties:
+        run_id:
+          type: string
+      required:
+      - run_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - run_id
+    konfig-generated-schema-single-parameter-schema-post--automl-runs-run_id-users:
+      properties:
+        run_id:
+          type: string
+        page_number:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--automl-runs-run_id-users-post-parameters-1-schema
+        page_size:
+          default: 500
+          example: 500
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 500
+          x-konfig-generated-schema: konfig-generated-schema-paths--automl-runs-run_id-users-post-parameters-2-schema
+        allow_users:
+          description: List of users to return user scores for
+          items:
+            $ref: '#/components/schemas/models.UserMetadata'
+          type: array
+        block_users:
+          description: List of users to omit from returned user scores
+          items:
+            $ref: '#/components/schemas/models.UserMetadata'
+          type: array
+        tag_filters:
+          description: Categorical Filters on pf_type metadata
+          items:
+            $ref: '#/components/schemas/models.TagCategoricalAttributeFilter'
+          type: array
+      required:
+      - run_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - run_id
+      - page_number
+      - page_size
+    konfig-generated-schema-single-parameter-schema-get--automl-users:
+      properties:
+        module-id:
+          type: string
+        page_number:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--automl-users-get-parameters-1-schema
+        page_size:
+          default: 500
+          example: 500
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 500
+          x-konfig-generated-schema: konfig-generated-schema-paths--automl-users-get-parameters-2-schema
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - module-id
+      - page_number
+      - page_size
+    konfig-generated-schema-single-parameter-schema-post--batch-user-personas:
+      properties:
+        module-id:
+          type: string
+        month:
+          type: string
+        persona_score_threshold:
+          maximum: 1
+          minimum: 0
+          type: number
+        user_ids:
+          description: All user ids we want to fetch personas for
+          items:
+            type: string
+          type: array
+      required:
+      - user_ids
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - module-id
+      - month
+      - persona_score_threshold
+    konfig-generated-schema-single-parameter-schema-get--client-access_key_id:
+      properties:
+        access_key_id:
+          type: string
+      required:
+      - access_key_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - access_key_id
+    konfig-generated-schema-single-parameter-schema-get--health:
+      properties: {}
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter: []
+    konfig-generated-schema-single-parameter-schema-get--module-transaction-enrichment-statistics:
+      properties:
+        module-id:
+          type: string
+      required:
+      - module-id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - module-id
+    konfig-generated-schema-single-parameter-schema-get--module-transaction-enrichment-users:
+      properties:
+        module-id:
+          type: string
+        user_id_prefix:
+          type: string
+        page_number:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--module-transaction-enrichment-users-get-parameters-2-schema
+        page_size:
+          default: 100
+          example: 100
+          type: integer
+          x-konfig-original-example: 100
+          x-konfig-generated-schema: konfig-generated-schema-paths--module-transaction-enrichment-users-get-parameters-3-schema
+      required:
+      - module-id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - module-id
+      - user_id_prefix
+      - page_number
+      - page_size
+    konfig-generated-schema-single-parameter-schema-get--persona:
+      properties:
+        facet_types:
+          type: string
+        module-id:
+          type: string
+        page_number:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-get-parameters-2-schema
+        page_size:
+          maximum: 10000
+          minimum: 1
+          type: integer
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - facet_types
+      - module-id
+      - page_number
+      - page_size
+    konfig-generated-schema-single-parameter-schema-post--persona:
+      properties:
+        model_version:
+          default: '"latest"'
+          example: '"latest"'
+          type: string
+          x-konfig-original-example: '"latest"'
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-post-parameters-0-schema
+        company_facets:
+          description: |-
+            Optional list of behavioral facet component objects. Each object outlines how a user's likelihood
+            to consume from a particular company's products and how much it contributes to the persona definition. If left
+            empty, no company-based scoring is done. Company facets can be found by listing personas of facet type
+            'company'. Facet name must be a valid company facet in the persona taxonomy.
+          items:
+            $ref: '#/components/schemas/models.FacetWeightObject'
+          type: array
+        demographic_facets:
+          description: |-
+            Optional list of interest facet component objects. Defines how much each demographic attribute
+            (location, affluence, household composition, etc.)  weighs in the persona. If left empty, no demographic-based
+            scoring is done. Demographic facets can be found by listing personas of facet type 'demographic'. Facet name
+            must be a valid demographic facet in the persona taxonomy.
+          items:
+            $ref: '#/components/schemas/models.FacetWeightObject'
+          type: array
+        interest_facets:
+          description: |-
+            Optional list of interest facet component objects. Each object represents how much an interest
+            weighs in the persona. If left empty, no interest-based scoring is done. Interests can be found
+            by listing personas of facet type 'interest'. Facet name must be a valid interest in the persona taxonomy.
+          items:
+            $ref: '#/components/schemas/models.FacetWeightObject'
+          type: array
+        locations:
+          description: "Optional list of zip codes or city ids to filter users by.\
+            \ If left empty, no location-based filtering is done."
+          items:
+            type: string
+          type: array
+        persona_name:
+          description: A name for describing this persona. Used for easy human-friendly
+            identification.
+          example: Young Professional
+          type: string
+          x-konfig-original-example: Young Professional
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PersonaCreateRequest-properties-persona_name
+        pre_defined_personas:
+          description: |-
+            Optional list of pre-defined persona facet component objects. Each object outlines how a pre-defined
+            persona ('Car Owners' or 'International Travelers') contributes to the persona definition. If left
+            empty, no predefined personas are incorporated into the persona definition. Pre-defined personas have
+            been optimized for financial use cases and have been validated at scale. They can be found by listing
+            personas of facet type 'pre_defined_persona'. Facet name must be a valid pre-defined persona facet in
+            the persona taxonomy.
+          items:
+            $ref: '#/components/schemas/models.FacetWeightObject'
+          type: array
+      required:
+      - persona_name
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - model_version
+    konfig-generated-schema-single-parameter-schema-delete--persona-persona_id:
+      properties:
+        persona_id:
+          type: string
+      required:
+      - persona_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - persona_id
+    konfig-generated-schema-single-parameter-schema-get--persona-persona_id:
+      properties:
+        persona_id:
+          type: string
+        module-id:
+          type: string
+        month:
+          type: string
+        persona_score_threshold:
+          maximum: 1
+          minimum: 0
+          type: number
+      required:
+      - persona_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - persona_id
+      - module-id
+      - month
+      - persona_score_threshold
+    konfig-generated-schema-single-parameter-schema-get--persona-persona_id-percentile_score:
+      properties:
+        persona_id:
+          type: string
+        percentile:
+          default: 50
+          example: 50
+          maximum: 100
+          minimum: 0
+          type: number
+          x-konfig-original-example: 50
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-persona_id-percentile_score-get-parameters-1-schema
+        module-id:
+          type: string
+        month:
+          type: string
+      required:
+      - percentile
+      - persona_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - persona_id
+      - percentile
+      - module-id
+      - month
+    konfig-generated-schema-single-parameter-schema-post--persona-persona_id-users:
+      properties:
+        persona_id:
+          type: string
+        module-id:
+          type: string
+        page_number:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-persona_id-users-post-parameters-2-schema
+        page_size:
+          default: 500
+          example: 500
+          maximum: 10000
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 500
+          x-konfig-generated-schema: konfig-generated-schema-paths--persona-persona_id-users-post-parameters-3-schema
+        month:
+          type: string
+        persona_score_threshold:
+          maximum: 1
+          minimum: 0
+          type: number
+        birth_date:
+          $ref: '#/components/schemas/models.TimestampAttributeFilter'
+        blocklist:
+          description: List of user ids to not be included in the response
+          example:
+          - "['1234']"
+          items:
+            type: string
+          type: array
+          x-konfig-original-example:
+          - "['1234']"
+          x-konfig-generated-schema: konfig-generated-schema-components-schemas-models.PostPersonaUsersRequest-properties-blocklist
+        branch:
+          $ref: '#/components/schemas/models.CategoricalAttributeFilter'
+        cbo_code:
+          $ref: '#/components/schemas/models.CategoricalAttributeFilter'
+        declared_monthly_income:
+          $ref: '#/components/schemas/models.NumericalAttributeFilter'
+        job_title:
+          $ref: '#/components/schemas/models.CategoricalAttributeFilter'
+      required:
+      - blocklist
+      - branch
+      - persona_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - persona_id
+      - module-id
+      - page_number
+      - page_size
+      - month
+      - persona_score_threshold
+    konfig-generated-schema-single-parameter-schema-get--statistics-latest_month:
+      properties: {}
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter: []
+    konfig-generated-schema-single-parameter-schema-get--user-user_id-cashflow-categories:
+      properties:
+        user_id:
+          type: string
+        module-id:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        account_type:
+          type: string
+      required:
+      - module-id
+      - user_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - user_id
+      - module-id
+      - start_date
+      - end_date
+      - account_type
+    konfig-generated-schema-single-parameter-schema-get--user-user_id-cashflow-history:
+      properties:
+        user_id:
+          type: string
+        module-id:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        aggregation:
+          type: string
+        account_type:
+          type: string
+      required:
+      - module-id
+      - user_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - user_id
+      - module-id
+      - start_date
+      - end_date
+      - aggregation
+      - account_type
+    konfig-generated-schema-single-parameter-schema-get--user-user_id-cashflow-statistics:
+      properties:
+        user_id:
+          type: string
+        module-id:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+      required:
+      - module-id
+      - user_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - user_id
+      - module-id
+      - start_date
+      - end_date
+    konfig-generated-schema-single-parameter-schema-get--user-user_id-transactions:
+      properties:
+        user_id:
+          type: string
+        module-id:
+          type: string
+        page_number:
+          default: 1
+          example: 1
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 1
+          x-konfig-generated-schema: konfig-generated-schema-paths--user-user_id-transactions-get-parameters-2-schema
+        page_size:
+          default: 100
+          example: 100
+          minimum: 1
+          type: integer
+          x-konfig-original-example: 100
+          x-konfig-generated-schema: konfig-generated-schema-paths--user-user_id-transactions-get-parameters-3-schema
+        start_date:
+          type: string
+        end_date:
+          type: string
+        flow_type:
+          type: string
+        min_amount:
+          type: number
+        max_amount:
+          type: number
+        account_type:
+          type: string
+        categories:
+          items:
+            type: string
+          type: array
+        search_name:
+          type: string
+      required:
+      - module-id
+      - user_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - user_id
+      - module-id
+      - page_number
+      - page_size
+      - start_date
+      - end_date
+      - flow_type
+      - min_amount
+      - max_amount
+      - account_type
+      - categories
+      - search_name
+    konfig-generated-schema-single-parameter-schema-get--user-user_id-transactions-statistics:
+      properties:
+        user_id:
+          type: string
+        module-id:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        flow_type:
+          type: string
+        min_amount:
+          type: number
+        max_amount:
+          type: number
+        account_type:
+          type: string
+      required:
+      - module-id
+      - user_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - user_id
+      - module-id
+      - start_date
+      - end_date
+      - flow_type
+      - min_amount
+      - max_amount
+      - account_type
+    konfig-generated-schema-single-parameter-schema-get--users-user_id-personas:
+      properties:
+        user_id:
+          type: string
+        module-id:
+          type: string
+        month:
+          type: string
+        persona_score_threshold:
+          maximum: 1
+          minimum: 0
+          type: number
+      required:
+      - user_id
+      type: object
+      x-do-not-generate: true
+      x-konfig-is-parameter:
+      - user_id
+      - module-id
+      - month
+      - persona_score_threshold
+  securitySchemes:
+    PASETO:
+      description: "Authorization token using the PASETO scheme. Enter the token with\
+        \ the \"Bearer\" prefix, e.g. \"Bearer v2.local.V0bmLbcYzFAs4w0VL...\"."
+      in: header
+      name: Authorization
+      type: apiKey
+      x-konfig-globally-required-security: false
+x-readme:
+  explorer-enabled: true
+  proxy-enabled: true
+  samples-enabled: true
+
